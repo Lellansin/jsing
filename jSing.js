@@ -10,7 +10,7 @@ jSing = module.exports;
  *  get(json对象, 键名, [键名, ... ])
  *
  *  获取Json对象中的某个节点
- *  例如：json.get(Data, 'country', 'province', 'city');
+ *  Example: son.get(Data, 'country', 'province', 'city');
  *  结果则返回 Data['country']['province']['city']
  *  无则返回false
  */
@@ -28,9 +28,9 @@ jSing.get = function(obj, key) {
 
 /**
  *  set(json对象, 键名, [键名, ...], 值)
- * 
+ *
  *  设置Json对象中的某个节点
- *  例如：obj.set(data, "ENTRY", "FA_TOKEN_INVALID", 1234);
+ *  Example: obj.set(data, "ENTRY", "FA_TOKEN_INVALID", 1234);
  *  将 data['ENTRY']['FA_TOKEN_INVALID'] 设置为1234
  *  成功true, 失败false
  */
@@ -49,7 +49,7 @@ jSing.set = function(obj, key) {
  *  若要创建的键（节点）已存在则会覆盖其值
  *  若节点不合法，则会返回false（例如其中某一个目标节点不为Object不能有层级关系）
  *
- *  例如：obj.create(data, 'add', 'hello', 'test', 120);
+ *  Example: obj.create(data, 'add', 'hello', 'test', 120);
  *  添加 data['create']['hello']['test'] 节点并设置值为 120
  *  成功true, 失败false
  */
@@ -63,9 +63,9 @@ jSing.create = function(obj, key) {
 
 /**
  *  delete(Json对象, 键名, [键名, ... ] );
- * 
+ *
  *  在Json对象中删除节点
- *  例如：obj.delete(prods, 'grade', 'math');
+ *  Example: obj.delete(prods, 'grade', 'math');
  *  成功true, 失败false
  */
 jSing.delete = function(obj, key) {
@@ -118,19 +118,33 @@ jSing.pop = function(obj, key) {
     }
 }
 
+jSing.arr2json = function(arr) {
+    if (arguments.length == 1) {
+        var json = {};
+        for(var i in arr){
+            json[i] = arr[i];
+        }
+        return json;
+    }
+}
+
+jSing.json2arr = function(json) {
+    if (arguments.length == 1) {
+        var arr = new Array();
+        for(var k in json) {
+            var tmp = {};
+            tmp[k] = json[k];
+            arr.push(tmp);
+        }
+        return arr;
+    }
+}
+
 /**
  * 返回Json对象的字符串形式（封装 ECMAScript 库函数）
  */
 jSing.getStr = function(obj) {
-    return JSON.stringify(obj, function(key, value){
-//        console.log("key [" + key + "] value [" + value + "]");
-        if(key[0] == '_'){
-            console.log("这是特殊键值 key " + key + " value " + value);
-//            key = '123'+key+'"';
-            return '"'+key+'":"'+value+'"';
-        }
-        return value;
-    });
+    return JSON.stringify(obj);
 }
 
 /**
@@ -166,7 +180,7 @@ jSing.getLength = function(obj) {
 
 function ergodic_print(obj, indentation) {
     var indent = "	" + indentation;
-    if (obj.constructor == Object) {
+    if (obj.constructor == Object || obj.constructor == Array) {
         for (var p in obj) {
             if (obj[p] == undefined) {
                 console.log(indent + "[" + p + "] => " + undefined + "");
@@ -214,7 +228,7 @@ function ergodic_create(obj, args, floor) {
             var value = args[args.length - 1];
             for (var i = args.length - 2; i > floor; i--) {
                 var tmp = {};
-                tmp[args[i]] =  value;
+                tmp[args[i]] = value;
                 value = tmp;
             };
             obj[args[floor]] = value;
@@ -269,20 +283,15 @@ function ergodic_push(obj, args, floor) {
         }
         // 节点不存在
         if (floor < args.length - 1) {
-            var jsonstr = getJsonFormat(args[args.length - 1]);
-            if (jsonstr.constructor == Object)
-                jsonstr = jSing.getStr(jsonstr);
-            jsonstr = '{"0":' + jsonstr + '}';
+            var value = args[args.length - 1];
             for (var i = args.length - 2; i > floor; i--) {
-                jsonstr = '{"' + args[i] + '":' + tmp + '}';
+                var tmp = {};
+                tmp[args[i]] = value;
+                value = tmp;
             };
-            var node = {};
-            if (jsonstr.constructor == String) {
-                node = JSON.parse(jsonstr);
-            } else {
-                node = jsonstr;
-            }
-            obj[args[floor]] = node;
+
+            // obj[args[floor]] = value;
+            jSing.create(obj, args[floor], 0, value);
             return true;
         }
     }
