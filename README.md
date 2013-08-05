@@ -1,13 +1,35 @@
-jsing
-=====
+<h1>jsing</h1>
 
-A json tool kit for Node.js
+A json tool kit for Node.js.
 
+<h1>简介</h1>
+
+json对象的操作工具集
+
+<h1>函数介绍</h1>
+
+<ul>
+<li>get/set 获取/设置节点时, 减少中间节点不存在的判断</li>
+<li>create 可以方便的创建多级节点</li>
+<li>delete 删除节点</li>
+<li>push  将制定键值压入制定的json节点中</li>
+<li>pop 弹出指定json节点中的键值</li>
+</ul>
+
+<h1>安装</h1>
+
+使用NPM即可安装
+
+<pre>npm install jsing</pre>
+
+<h1>使用实例</h1>
+
+<pre>
 <code>
 /**
  * 使用实例
  */
-var json = require("./jSing");
+var json = require("jsing");
 
 var data = {
    0: 120,
@@ -90,3 +112,4 @@ console.log(jsonModule.pop(empty, "hello"));
 
 jsonModule.print_r(empty);
 </code>
+</pre>
