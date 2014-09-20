@@ -1,18 +1,17 @@
 /**
- *  Json对象操作，增删改查，push pop
- *  @author  lellansin     2013-07-31
- *  @version 0.0.2
- *  实例见底部
+ *  jSing
+ *  @author     lellansin     
+ *  @date       2013-07-31
+ *  @version    0.0.3
  */
 jSing = module.exports;
 
 /**
- *  get(json对象, 键名, [键名, ... ])
+ *  get(jsonObj, key, [key, ... ])
  *
- *  获取Json对象中的某个节点
  *  Example: son.get(Data, 'country', 'province', 'city');
- *  结果则返回 Data['country']['province']['city']
- *  无则返回false
+ *  return the value of Data['country']['province']['city']
+ *  return false if failed
  */
 jSing.get = function(obj, key) {
     var result = obj;
@@ -27,12 +26,11 @@ jSing.get = function(obj, key) {
 };
 
 /**
- *  set(json对象, 键名, [键名, ...], 值)
+ *  set(jsonObj, key, [key, ...], value)
  *
- *  设置Json对象中的某个节点
  *  Example: obj.set(data, "ENTRY", "FA_TOKEN_INVALID", 1234);
- *  将 data['ENTRY']['FA_TOKEN_INVALID'] 设置为1234
- *  成功true, 失败false
+ *  Set the data['ENTRY']['FA_TOKEN_INVALID'] value 1234
+ *  success with true, failed with false
  */
 jSing.set = function(obj, key) {
     if (ergodic_set(obj, arguments, 1)) {
@@ -43,15 +41,15 @@ jSing.set = function(obj, key) {
 }
 
 /**
- *  create(json对象, 键名, [键名, ... ], 值)
+ *  create(jsonObj, key, [key, ... ], value)
  *
- *  多层创建新节点， 至少输入一个键名（最后一个键名与值对应）, 支持值为Json对象
- *  若要创建的键（节点）已存在则会覆盖其值
- *  若节点不合法，则会返回false（例如其中某一个目标节点不为Object不能有层级关系）
+ *  create multilevel node, pass at least one key (come with last value)
+ *  if the node (key) you want create has exist, the value will be overwrite
+ *  if the node is invalid (e.g. the node is not a json object couldn't has next level), function will return false.
  *
  *  Example: obj.create(data, 'add', 'hello', 'test', 120);
- *  添加 data['create']['hello']['test'] 节点并设置值为 120
- *  成功true, 失败false
+ *  create data['create']['hello']['test'] and set is's value 120
+ *  success with true, failed with false
  */
 jSing.create = function(obj, key) {
     if (ergodic_create(obj, arguments, 1)) {
@@ -62,11 +60,10 @@ jSing.create = function(obj, key) {
 }
 
 /**
- *  delete(Json对象, 键名, [键名, ... ] );
+ *  delete(JsonObj, key, [key, ... ] );
  *
- *  在Json对象中删除节点
  *  Example: obj.delete(prods, 'grade', 'math');
- *  成功true, 失败false
+ *  success with true, failed with false
  */
 jSing.delete = function(obj, key) {
     if (ergodic_delete(obj, arguments, 1)) {
@@ -77,20 +74,15 @@ jSing.delete = function(obj, key) {
 }
 
 /***
- *  push(json对象, [键名, ...], 值)
+ *  push(jsonObj, [key, ...], value)
  *
- *  将键值对（最后一个键名与值，无键名则是数字索引与值）压入json对象中，可不指明节点名，默认索引从0开始
- *  若目标节点存在一个值，则这个值会被改成  {0:原值}  新插入的值与其平级  {1:新值}
- *  若目标节点已存储多个值，则新的键值对会以长度为键值插入
  */
 jSing.push = function(obj, key) {
     var args = arguments;
     if (args.length == 2) {
         if (isNode(obj)) {
-            // 是节点则以长度为下表添加新值
             obj[jSing.getLength(obj)] = key;
         } else {
-            // 不是节点则将原来的值变成 0:原值  新push进来的变成 1:新值
             var tmp = obj;
             delete obj;
             jSing.create(obj, 0, tmp);
@@ -105,7 +97,7 @@ jSing.push = function(obj, key) {
 }
 
 /***
- *  pop(json对象, [键名, ...])
+ *  pop(jsonObj, [key, ...])
  *
  */
 jSing.pop = function(obj, key) {
@@ -119,6 +111,7 @@ jSing.pop = function(obj, key) {
 }
 
 jSing.arr2json = function(arr) {
+    // wait for reference pass
     if (arguments.length == 1) {
         var json = {};
         for(var i in arr){
@@ -141,21 +134,21 @@ jSing.json2arr = function(json) {
 }
 
 /**
- * 返回Json对象的字符串形式（封装 ECMAScript 库函数）
+ * ECMAScript lib
  */
 jSing.getStr = function(obj) {
     return JSON.stringify(obj);
 }
 
 /**
- * 解析字符串返回Json对象（封装 ECMAScript 库函数）
+ * ECMAScript lib
  */
 jSing.getJson = function(str) {
     return JSON.parse(str);
 }
 
 /**
- * 格式化输出Json对象
+ * Format output json object like print_r in php
  */
 jSing.print_r = function(obj) {
     console.log("{");
@@ -164,9 +157,7 @@ jSing.print_r = function(obj) {
 }
 
 /***
- * 获取Json对象当层长度
- * @param Json对象
- * @returns {number} 当层长度
+ * get length of Json object on the level passed
  */
 jSing.getLength = function(obj) {
     var cout = 0;
@@ -175,6 +166,7 @@ jSing.getLength = function(obj) {
     }
     return cout;
 }
+
 
 // 待优化，将递归中的东西都写入到一个buffer中，减少console.log的调用次数
 
@@ -204,9 +196,7 @@ function ergodic_set(obj, args, floor) {
             if (floor < args.length - 2) {
                 return ergodic_set(obj[args[floor]], args, floor + 1);
             } else {
-                // 此时参数floor为倒数第二个，加1值为最后一个
                 obj[args[floor]] = args[floor + 1];
-                // console.log("成功设置，返回true");
                 return true;
             }
         }
@@ -223,7 +213,7 @@ function ergodic_create(obj, args, floor) {
                 return true;
             }
         }
-        // 节点不存在，创建新节点
+        // create new
         if (floor < args.length - 1) {
             var value = args[args.length - 1];
             for (var i = args.length - 2; i > floor; i--) {
@@ -267,12 +257,11 @@ function ergodic_push(obj, args, floor) {
             if (floor < args.length - 2) {
                 return ergodic_push(obj[args[floor]], args, floor + 1);
             } else {
-                // 添加节点
+                // add node
                 if (isNode(obj[args[floor]])) {
-                    // 是节点则以长度为下表添加新值
+                    // use length to be the index
                     obj[args[floor]][jSing.getLength(obj[args[floor]])] = args[floor + 1];
                 } else {
-                    // 不是节点则将原来的值变成 0:原值  新push进来的变成 1:新值
                     var tmp = obj[args[floor]];
                     delete obj[args[floor]];
                     jSing.create(obj, args[floor], 0, tmp);
@@ -281,7 +270,7 @@ function ergodic_push(obj, args, floor) {
                 return true;
             }
         }
-        // 节点不存在
+        // create new 
         if (floor < args.length - 1) {
             var value = args[args.length - 1];
             for (var i = args.length - 2; i > floor; i--) {
@@ -303,7 +292,6 @@ function ergodic_pop(obj, args, floor) {
             if (floor < args.length - 1) {
                 return ergodic_set(obj[args[floor]], args, floor + 1);
             } else {
-                // 此时参数floor为倒数第一个，即最后一个建
                 var rel = obj[args[floor]][jSing.getLength(obj[args[floor]]) - 1];
                 delete obj[args[floor]][jSing.getLength(obj[args[floor]]) - 1];
                 return rel;
@@ -318,19 +306,16 @@ function ergodic_pop(obj, args, floor) {
 
 function isNode(item) {
     if (item.constructor == Object) {
-        return true; // 是节点
+        return true;
     } else {
-        return false; // 不是节点
+        return false;
     }
 }
 
 function push_insert(obj, args, floor) {
-    // 添加节点
     if (isNode(obj)) {
-        // 是节点则以长度为下表添加新值
         obj[jSing.getLength(obj)] = args[floor + 1];
     } else {
-        // 不是节点则将原来的值变成 0:原值  新push进来的变成 1:新值
         var tmp = obj;
         delete obj;
 
