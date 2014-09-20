@@ -1,6 +1,5 @@
 
-
-var jsing = require("./jsing");
+var jsing = require("../");
 
 var data = {
    0: 120,
